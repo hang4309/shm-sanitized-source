@@ -1,0 +1,22 @@
+# Local configuration and generated/runtime files
+.env
+.env.*
+!.env.example
+**/node_modules/
+**/target/
+**/dist/
+**/__pycache__/
+**/*.py[cod]
+**/*.log
+**/logs/
+**/state/
+**/.idea/
+**/.vscode/
+sample-data/
+*.zip
+*.xlsx
+*.xls
+*.db
+*.sqlite
+*.sql.gz
+*.dump

@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: shm-backend
+
+  datasource:
+    url: ${SHM_DB_URL}
+    username: ${SHM_DB_USERNAME}
+    password: ${SHM_DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      # Conservative lab values: protect the lab MySQL instance from
+      # runaway connection growth under concurrent load.
+      maximum-pool-size: 10
+      connection-timeout: 30000
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml

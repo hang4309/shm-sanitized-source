@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.shm.vendorsource.mapper.VendorSourceReadingMapper">
+
+    <!-- Explicit column mapping: Java sourceType is persisted to source_type. -->
+    <resultMap id="VendorReadingResultMap" type="com.example.shm.vendorsource.vo.VendorReadingVO">
+        <result column="source_type" property="sourceType"/>
+        <result column="device_no" property="deviceNo"/>
+        <result column="channel_no" property="channelNo"/>
+        <result column="sensor_id" property="sensorId"/>
+        <result column="module_key" property="moduleKey"/>
+        <result column="measured_value" property="measuredValue"/>
+        <result column="raw_value" property="rawValue"/>
+        <result column="intensity" property="intensity"/>
+        <result column="wavelength" property="wavelength"/>
+        <result column="wavelength_shift" property="wavelengthShift"/>
+        <result column="collect_time" property="collectTime"/>
+        <result column="source_file" property="sourceFile"/>
+        <result column="source_line" property="sourceLine"/>
+    </resultMap>
+
+    <sql id="readingColumns">
+        source_type, device_no, channel_no, sensor_id, module_key,
+        measured_value, raw_value, intensity, wavelength, wavelength_shift,
+        collect_time, source_file, source_line
+    </sql>
+
+    <sql id="readingFilters">
+        <if test="sourceType != null and sourceType != ''">AND source_type = #{sourceType}</if>
+        <if test="deviceNo != null and deviceNo != ''">AND device_no = #{deviceNo}</if>
+        <if test="channelNo != null and channelNo != ''">AND channel_no = #{channelNo}</if>
+        <if test="sensorId != null and sensorId != ''">AND sensor_id = #{sensorId}</if>
+        <if test="moduleKey != null and moduleKey != ''">AND module_key = #{moduleKey}</if>
+    </sql>
+
+    <insert id="insertReading" parameterType="com.example.shm.vendorsource.entity.VendorSourceReadingEntity">
+        INSERT INTO vendor_source_reading (
+            source_type, device_no, channel_no, sensor_id, module_key,
+            measured_value, raw_value, intensity, wavelength, wavelength_shift,
+            collect_time, source_file, source_file_hash, source_offset, source_line,
+            created_at, deleted
+        ) VALUES (
+            #{sourceType}, #{deviceNo}, #{channelNo}, #{sensorId}, #{moduleKey},
+            #{measuredValue}, #{rawValue}, #{intensity}, #{wavelength}, #{wavelengthShift},
+            #{collectTime}, #{sourceFile}, #{sourceFileHash}, #{sourceOffset}, #{sourceLine},
+            NOW(), 0
+        )
+    </insert>
+
+    <select id="selectLatest" resultMap="VendorReadingResultMap">
+        SELECT <include refid="readingColumns"/>
+        FROM vendor_source_reading
+        WHERE deleted = 0
+        <include refid="readingFilters"/>
+        ORDER BY collect_time DESC, id DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectHistory" resultMap="VendorReadingResultMap">
+        SELECT <include refid="readingColumns"/>
+        FROM (
+            SELECT <include refid="readingColumns"/>, id
+            FROM vendor_source_reading
+            WHERE deleted = 0
+            <include refid="readingFilters"/>
+            <if test="startTime != null">AND collect_time &gt;= #{startTime}</if>
+            <if test="endTime != null">AND collect_time &lt;= #{endTime}</if>
+            ORDER BY collect_time DESC, id DESC
+            LIMIT #{limit}
+        ) recent_rows
+        ORDER BY collect_time ASC, id ASC
+    </select>
+</mapper>
