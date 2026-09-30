@@ -2,6 +2,12 @@
 
 [Home](../README.md) · [Runbook](runbook.md) · [Backend reference](../shm-backend-fable5-copy/docs/PROJECT_BACKEND_STRUCTURE.md)
 
+## OS265 integration boundary
+
+The original project’s integration chain was validated in the lab: **FBG sensors → OS265 optical-fiber interrogator → vendor software → channel TXT files → Python collector → Spring Boot API → MySQL → Vue dashboard**.
+
+The integration boundary is the vendor software's channel-file output. The public repository extracts a focused demo of this data path. Generated SYNTHETIC channel files enter the existing collector at the same file boundary, making the software workflow reproducible without the lab hardware.
+
 ## Responsibilities
 
 1. **File adapter:** discovers eligible channel text files, decodes lines, tracks byte offsets and records source identity. The current parser's fifth whitespace-delimited field is the primary value; the fourth is auxiliary wavelength.

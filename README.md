@@ -1,24 +1,26 @@
-# SHM · Sensor Data Pipeline & Dashboard
+# SHM · OS265 Interrogator Integration & Dashboard
 
-**From sensor files to queryable readings and interactive trends.**
+**Connect OS265 optical-fiber interrogator output to traceable readings and interactive trends.**
 
-A Java/Python pipeline that turns industrial sensor text files into structured measurements and a Vue dashboard — with incremental collection, source traceability and a shared query model.
+An engineering demo extracted from a real OS265 optical-fiber interrogator integration project for FBG sensing. A Python collector reads the channel files written by vendor software, then feeds a Spring Boot API, MySQL storage and a Vue monitoring dashboard.
 
 [Quickstart](#quickstart) · [Full application demo](docs/runbook.md) · [Architecture](docs/architecture.md) · [Engineering notes](docs/validation.md) · [中文](docs/README.zh-CN.md)
 
-![SHM architecture: sensor files flow through a Python collector, a Java and MySQL data layer, and a Vue monitoring dashboard.](docs/assets/sensor-pipeline.svg)
+![OS265 integration architecture: FBG sensors → OS265 optical-fiber interrogator → vendor software → channel files → Python collector → Spring Boot API → MySQL → Vue. Synthetic replay enters at the file boundary.](docs/assets/sensor-pipeline.svg)
+
+The **FBG → OS265 → vendor software → channel files → application** chain was validated in the original project's laboratory setup.
 
 ## Why this project
 
-A growing sensor file is useful to a device, but harder to explore as application data. Files may still be writing when a collector reads them; uploads can fail; a point on a chart needs a path back to its source.
+OS265 acquisition happens upstream, through the interrogator and its vendor software. This project's integration task is to bring the resulting channel records into a queryable monitoring application. Files may still be writing when the collector reads them; uploads can fail; a plotted reading needs a path back to its original channel record.
 
 SHM connects those steps: follow appended records, normalize them through an API, preserve their origin in MySQL, and inspect latest readings or a selected time window in the browser.
 
 ## What it does
 
-### Pick up where collection stopped
+### Bring OS265 channel output into the application
 
-The Python collector tracks byte offsets and persists progress across runs. Partial-line handling accommodates files still being written; timeouts and bounded retries handle transient upload failures.
+The adapter connects the vendor software's channel TXT output to the application. Byte offsets and persisted progress support incremental collection and restart/resume. Partial-line handling, timeouts and bounded upload retries address the handoff from ongoing file acquisition to the backend.
 
 ### Trace a reading back to its source
 
@@ -34,7 +36,7 @@ The Vue dashboard combines polling, manual time-window queries, SVG trends and a
 
 ## Quickstart
 
-**Try the collector without a database.** From a clone of this repository, with Python 3.10+:
+**Replay OS265-format channel records without the interrogator or a database.** From a clone of this repository, with Python 3.10+:
 
 ```sh
 python tools/demo/generate_synthetic.py
@@ -58,6 +60,7 @@ The sample's primary values rise from **10.00 to 11.25**. The recorder demonstra
 
 | Layer | Technology |
 | --- | --- |
+| Device integration | FBG sensors → OS265 optical-fiber interrogator → vendor software → channel files |
 | File ingestion | Python standard library; OS265-format text adapter |
 | API and persistence | Java 17 target · Spring Boot 4 · MyBatis · MySQL 8 schema |
 | Dashboard | Vue 3 · Vite · SVG charts |
@@ -77,6 +80,6 @@ The sample's primary values rise from **10.00 to 11.25**. The recorder demonstra
 
 ## Project status
 
-Current focus: **file ingestion, unified queries and monitoring views**. The six views are mapping-based presentations of readings; physical calibration and prediction/crack integration remain future work. Samples are synthetic.
+This demo brings together the **OS265 channel collector, unified latest/history APIs and six mapped monitoring views**. Prediction and crack integrations are planned extensions.
 
-Local collector/helper checks are documented; the complete Java/MySQL/browser chain and production or safety suitability remain unverified. See [validation and project scope](docs/validation.md) for the full record and retained third-party notices.
+[Demo setup](docs/runbook.md) · [API reference](shm-backend-fable5-copy/docs/API_ENDPOINTS_REFERENCE.md) · [Engineering notes](docs/validation.md)

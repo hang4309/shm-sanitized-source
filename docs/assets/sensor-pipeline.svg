@@ -1,37 +1,56 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="410" viewBox="0 0 1280 410" role="img" aria-labelledby="title desc">
-  <title id="title">SHM sensor data pipeline architecture</title>
-  <desc id="desc">An architecture diagram, not a dashboard screenshot. OS265-format sensor files enter a Python incremental collector, then a Java API and MySQL data layer, and finally Vue monitoring views.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="650" viewBox="0 0 1280 650" role="img" aria-labelledby="title desc">
+  <title id="title">OS265 interrogator integration and public demo</title>
+  <desc id="desc">Architecture of the original lab-validated chain: FBG sensors, OS265 optical-fiber interrogator, vendor software, channel text files, Python collector, Spring Boot API, MySQL and Vue. The public demo replays synthetic files at the collector input; Python does not call a device API.</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10Z" fill="#56d6ba"/></marker>
+    <marker id="demoArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10Z" fill="#f2be6b"/></marker>
   </defs>
-  <rect width="1280" height="410" rx="20" fill="#111c2b"/>
-  <text x="48" y="57" font-family="Arial,sans-serif" font-size="15" font-weight="700" letter-spacing="2" fill="#56d6ba">SHM / DATA FLOW</text>
-  <text x="48" y="104" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#f2f6fb">Collect. Trace. Query. Visualize.</text>
-  <text x="48" y="134" font-family="Arial,sans-serif" font-size="16" fill="#b0bfd1">One reading model, from a growing text file to a monitoring view.</text>
+  <rect width="1280" height="650" rx="20" fill="#111c2b"/>
+  <g font-family="Arial,sans-serif">
+    <text x="48" y="53" font-size="15" font-weight="700" letter-spacing="2" fill="#56d6ba">SHM / OS265 INTEGRATION DEMO</text>
+    <text x="48" y="97" font-size="31" font-weight="700" fill="#f2f6fb">From optical-fiber acquisition to a monitoring dashboard.</text>
+    <text x="48" y="128" font-size="16" fill="#b0bfd1">Lab-validated optical-fiber acquisition and application data flow.</text>
+    <text x="48" y="166" font-size="13" font-weight="700" letter-spacing="1.2" fill="#b0bfd1">LAB HARDWARE + VENDOR OUTPUT</text>
+  </g>
   <g fill="#1b2b40" stroke="#344961">
-    <rect x="48" y="180" width="248" height="140" rx="12"/>
-    <rect x="360" y="180" width="248" height="140" rx="12"/>
-    <rect x="672" y="180" width="248" height="140" rx="12"/>
-    <rect x="984" y="180" width="248" height="140" rx="12"/>
+    <rect x="48" y="182" width="248" height="108" rx="12"/>
+    <rect x="360" y="182" width="248" height="108" rx="12" stroke="#56d6ba"/>
+    <rect x="672" y="182" width="248" height="108" rx="12"/>
+    <rect x="984" y="182" width="248" height="108" rx="12"/>
+    <rect x="48" y="442" width="248" height="116" rx="12"/>
+    <rect x="360" y="442" width="248" height="116" rx="12"/>
+    <rect x="672" y="442" width="248" height="116" rx="12"/>
+    <rect x="984" y="442" width="248" height="116" rx="12"/>
   </g>
   <g stroke="#56d6ba" stroke-width="2" fill="none" marker-end="url(#arrow)">
-    <path d="M308 250 H346"/><path d="M620 250 H658"/><path d="M932 250 H970"/>
+    <path d="M308 235 H346"/><path d="M620 235 H658"/><path d="M932 235 H970"/>
+    <path d="M1108 290 V382 H172 V428"/>
+    <path d="M308 498 H346"/><path d="M620 498 H658"/><path d="M932 498 H970"/>
   </g>
   <g font-family="Arial,sans-serif">
-    <g font-size="13" font-weight="700" letter-spacing="1.2" fill="#56d6ba">
-      <text x="70" y="211">01 / INPUT</text><text x="382" y="211">02 / COLLECT</text><text x="694" y="211">03 / STORE &amp; QUERY</text><text x="1006" y="211">04 / EXPLORE</text>
-    </g>
     <g font-size="23" font-weight="700" fill="#f2f6fb">
-      <text x="70" y="248">Sensor files</text><text x="382" y="248">Python collector</text><text x="694" y="248">Java + MySQL</text><text x="1006" y="248">Vue dashboard</text>
+      <text x="70" y="223">FBG sensors</text><text x="382" y="223">OS265</text>
+      <text x="694" y="223">Vendor software</text><text x="1006" y="223">Channel files</text>
+      <text x="70" y="485">Python collector</text><text x="382" y="485">Spring Boot API</text>
+      <text x="694" y="485">MySQL</text><text x="1006" y="485">Vue dashboard</text>
     </g>
     <g font-size="15" fill="#b0bfd1">
-      <text x="70" y="279">OS265-format text</text><text x="70" y="300">Values + timestamps</text>
-      <text x="382" y="279">Incremental reads</text><text x="382" y="300">Checkpoints + retries</text>
-      <text x="694" y="279">Source identity + mapping</text><text x="694" y="300">Latest / history APIs</text>
-      <text x="1006" y="279">Live / time-window views</text><text x="1006" y="300">Trends + reading tables</text>
+      <text x="70" y="256">Fiber Bragg grating sensing</text>
+      <text x="382" y="256">Optical-fiber interrogator</text>
+      <text x="694" y="256">Acquisition + recording</text>
+      <text x="1006" y="256">Vendor TXT output</text>
+      <text x="70" y="516">Offsets · resume · retry</text><text x="70" y="538">Source file + line tracking</text>
+      <text x="382" y="516">Normalize · validate · map</text><text x="382" y="538">Backend HTTP boundary</text>
+      <text x="694" y="516">Reading + source identity</text><text x="694" y="538">Latest / history queries</text>
+      <text x="1006" y="516">Live / time-window views</text><text x="1006" y="538">Trends + reading tables</text>
     </g>
-    <line x1="48" y1="351" x2="1232" y2="351" stroke="#344961"/>
-    <text x="48" y="382" font-size="14" fill="#b0bfd1">Traceability: source file · line · offset · sensor · collection time</text>
-    <text x="1232" y="382" text-anchor="end" font-size="14" fill="#56d6ba">ARCHITECTURE OVERVIEW</text>
+    <rect x="448" y="315" width="512" height="43" rx="8" fill="#352f25" stroke="#b68b48" stroke-dasharray="5 4"/>
+    <text x="470" y="342" font-size="15" font-weight="700" fill="#f2be6b">Demo input · synthetic channel-file replay</text>
+    <path d="M448 337 H172 V370" stroke="#f2be6b" stroke-width="2" stroke-dasharray="5 4" fill="none" marker-end="url(#demoArrow)"/>
+    <text x="690" y="406" font-size="14" fill="#b0bfd1">VENDOR FILE OUTPUT → APPLICATION INGESTION</text>
+    <text x="360" y="427" font-size="13" font-weight="700" letter-spacing="1.2" fill="#b0bfd1">APPLICATION DATA PATH</text>
+    <line x1="48" y1="589" x2="1232" y2="589" stroke="#344961"/>
+    <text x="48" y="620" font-size="14" fill="#b0bfd1">OS265 hardware context + traceable software integration</text>
+    <text x="1232" y="620" text-anchor="end" font-size="14" fill="#56d6ba">OS265 INTEGRATION ARCHITECTURE</text>
   </g>
 </svg>
