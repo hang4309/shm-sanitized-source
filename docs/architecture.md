@@ -39,4 +39,4 @@ Questions the source supports discussing:
 
 ## Deliberate limits
 
-The demo covers six synthetic CH2 readings. It does not manufacture channels for all six modules. Prediction/crack UI shells, authentication, calibration, database-backed integration coverage and production operations remain future work. The public documentation/demo update leaves existing application and collector source unchanged.
+The demo covers six synthetic CH2 readings. It does not manufacture channels for all six modules. Prediction/crack UI shells, authentication, calibration, broader automated database integration coverage and production operations remain future work. The public documentation/demo update leaves existing application and collector source unchanged.

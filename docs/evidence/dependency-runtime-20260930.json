@@ -1,0 +1,120 @@
+{
+  "date_utc": "2026-09-30",
+  "baseline_commit": "8bf3f226083200f15b20194929361689976cb385",
+  "scope": "Frontend dependency consistency repair; no application or collector code change.",
+  "environment": {
+    "node": "24.11.1",
+    "npm": "11.19.1",
+    "vue": "3.5.32",
+    "vite": "8.0.8",
+    "java": "Temurin 25+36; release target 17",
+    "maven": "3.9.11",
+    "mysql": "8.0.34",
+    "python": "3.14.6",
+    "chrome": "153"
+  },
+  "dependency_change": {
+    "removed_direct_dev_dependency": "vite-plugin-vue-devtools (not imported or enabled by the application)",
+    "lock_entries_before": 295,
+    "lock_entries_after": 215,
+    "removed_entries": 81,
+    "added_entry": "node_modules/@emnapi/runtime@1.11.3",
+    "retained_entries": 214,
+    "retained_version_integrity_url_changes": 0
+  },
+  "manifest_sha256": {
+    "package.json": {
+      "before": "4b5bdd707cd979a25a8b29b4a919a82de955b654f618cbdaebc652764dd2bdd8",
+      "after": "9220d9f7c4b04c7db223a760f7f1bdd6c685d04e5852b5d98abc29768e69447a"
+    },
+    "package-lock.json": {
+      "before": "d186cde682a609e0c8df1f6b028d669ef515067e8f69970a055b2a554a123cce",
+      "after": "dc2528fc55792dcba4920910f623ec849aab18a61f7a1190a7153e1350a9dfa5"
+    }
+  },
+  "standard_install": {
+    "result": "PASS",
+    "command": "npm ci",
+    "installed_packages": 162,
+    "legacy_peer_deps": false,
+    "force": false,
+    "initial_node_modules_present": false,
+    "independent_second_clean_install": "PASS",
+    "dependency_tree_issues": 0,
+    "lock_changed_during_install": false,
+    "execution_notes": "Isolated cache, prefer-offline, no-audit and no-fund affected cache/reporting only; normal peer resolution enabled."
+  },
+  "checks": [
+    {
+      "check": "frontend-build",
+      "exit_code": 0,
+      "seconds": 3.501
+    },
+    {
+      "check": "frontend-oxlint",
+      "exit_code": 0,
+      "seconds": 1.105
+    },
+    {
+      "check": "frontend-eslint",
+      "exit_code": 0,
+      "seconds": 24.781
+    },
+    {
+      "check": "frontend-dependency-tree",
+      "exit_code": 0,
+      "seconds": 0.81
+    },
+    {
+      "check": "demo-python-tests",
+      "exit_code": 0,
+      "seconds": 1.841
+    },
+    {
+      "check": "demo-chart-tests",
+      "exit_code": 0,
+      "seconds": 0.136
+    }
+  ],
+  "real_runtime": {
+    "result": "PASS",
+    "started_utc": "2026-09-30T15:29:37.922862+00:00",
+    "completed_utc": "2026-09-30T15:29:56.290852+00:00",
+    "input": "SYNTHETIC OS265 channel TXT, CH2/strain",
+    "initial_rows": 0,
+    "rows_after_first_ingestion": 6,
+    "resume_uploads": 0,
+    "rows_after_fresh_state_replay": 6,
+    "query_endpoints_passed": 4,
+    "primary_values": [
+      10,
+      10.25,
+      10.5,
+      10.75,
+      11,
+      11.25
+    ],
+    "latest_time": "2025-01-01 00:00:05",
+    "browser_assertions_passed": 18,
+    "browser_errors": 0,
+    "table_rows": 6,
+    "chart_points": 6,
+    "backend_jar_sha256": "ea95e94d35dbaa04270de93687effef3427410260640596c6a110347502697b4",
+    "backend_jar_note": "Reused after source and packaged-class comparison; actual Spring Boot/MySQL processes ran.",
+    "application_files_changed_during_runtime": 0,
+    "test_ports_released": true,
+    "original_mysql_preserved": true
+  },
+  "screenshot": {
+    "path": "../assets/os265-synthetic-strain.png",
+    "sha256": "8393be9490728fd922820957235df9e6e77ee9a1aeaeee2f2af857d67e612eca",
+    "type": "Unedited real browser capture using synthetic file input"
+  },
+  "source_evidence_sha256": {
+    "RUNTIME-VERIFICATION.txt": "09dce7839d648240719ca6b42bd6efda44a4bcaf1c512152d84c451664395b7e",
+    "runtime-result.json": "bebc2ab8cfebddc4f0a7e38b4ca44c255d009c0effa95db0dab66434dedf81f7",
+    "runtime-provenance.json": "8b011307426e00440325af232cbd886692b5e93c488ddc18ae2f024811084cac",
+    "cleanup-independent-check.json": "267aca5d9a4b63a3d0b9e7d44754e35614566b7c743ddf6c9fe7c7a8f9620d17"
+  },
+  "independent_install_review_sha256": "de29efd4b2d82475d9d7ccfd3fd39a2760cee26e97ea53480e6495329563bb4d"
+}

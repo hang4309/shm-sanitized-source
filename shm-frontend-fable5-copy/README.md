@@ -6,7 +6,7 @@ Start with the [repository overview](../README.md), [full application runbook](.
 
 ## Development
 
-Node `^20.19.0 || >=22.12.0` is required by `package.json`.
+Node `^20.19.0 || >=22.12.0` is required by `package.json`. Standard installation, build and lint were verified with Node 24.11.1 and npm 11.19.1.
 
 ```sh
 npm ci

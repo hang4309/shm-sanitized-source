@@ -14,7 +14,7 @@ cd shm-sanitized-source
 ```
 
 - JDK 17+; the project targets Java 17. Set `JAVA_HOME` for the Maven wrapper.
-- Node `^20.19.0 || >=22.12.0` and npm.
+- Node `^20.19.0 || >=22.12.0` and npm. The current standard-install regression used Node 24.11.1 and npm 11.19.1.
 - Python 3.10+ (stdlib only; see the tested interpreter in validation).
 - For the full chain: a local MySQL 8 server compatible with `utf8mb4_0900_ai_ci`, and its `mysql` client.
 - First-use Maven/npm dependency downloads require network access. Neither dependency directories nor compiled output are committed.
@@ -118,6 +118,8 @@ cd shm-frontend-fable5-copy
 npm ci
 npm run dev -- --config ../tools/demo/vite.config.mjs
 ```
+
+The committed dependency graph supports standard `npm ci` on the tested Node/npm versions. The [verification record](validation.md) describes the lock consistency repair and its checks.
 
 Open the local URL Vite prints (normally `http://127.0.0.1:5173`). The demo-only Vite override binds to IPv4 loopback and forwards `/api` to `http://127.0.0.1:8080`, avoiding localhost IPv4/IPv6 differences. The original application configuration is unchanged.
 

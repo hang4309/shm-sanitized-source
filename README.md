@@ -34,6 +34,12 @@ A unified reading table and channel-to-module mapping serve latest/history queri
 
 The Vue dashboard combines polling, manual time-window queries, SVG trends and a reading table. Independent in-flight guards, cancellation and stale-response checks keep overlapping requests under control. Primary readings and auxiliary wavelength stay separate.
 
+## Demo preview
+
+![OS265 synthetic replay displayed by the actual Vue dashboard, with six strain rows and six rising points.](docs/assets/os265-synthetic-strain.png)
+
+Actual Vue dashboard captured in Chrome: **SYNTHETIC channel input → original collector → Spring Boot → MySQL → query → dashboard**, with six values from 10.00 to 11.25. [Run details](docs/validation.md).
+
 ## Quickstart
 
 **Replay OS265-format channel records without the interrogator or a database.** From a clone of this repository, with Python 3.10+:
@@ -54,7 +60,7 @@ OK
 
 The sample's primary values rise from **10.00 to 11.25**. The recorder demonstrates the collector locally; to run the Java/MySQL/dashboard chain, use the [application demo guide](docs/runbook.md), including setup commands, API checks and the exact chart time window.
 
-[All demo tools](tools/demo/README.md) · [28-test verification record and scope](docs/validation.md)
+[All demo tools](tools/demo/README.md) · [Tests and real application replay](docs/validation.md)
 
 ## Stack
 

@@ -1,43 +1,74 @@
 # Verification record
 
-This record distinguishes executed checks from instructions and earlier source checks. It is not a production acceptance report.
+## Standard-install repair
 
-## Executed for this documentation/demo update
+The frontend now installs with **standard `npm ci`** under Node **24.11.1** and npm **11.19.1**.
 
-On 2026-09-30, in the isolated public worktree on Windows:
+The previous lock omitted the top-level `@emnapi/runtime` peer required by `@napi-rs/wasm-runtime`. Separately, the unused `vite-plugin-vue-devtools` dependency brought inspection/RPC packages whose Vite peer ranges excluded the locked Vite 8 version. The application configuration never enabled that plugin.
 
-| Check | Result | What it establishes |
-| --- | --- | --- |
-| Python 3.14.6: `python -B -m unittest discover -s tools/demo -p "test_*.py" -v` | PASS: 24 tests, 1.346 s | 7 generator/collector tests and 17 verifier tests, including rejection cases |
-| Node 24.11.1: `node --test tools/demo/test_chart.mjs` | PASS: 4 tests | Existing primary-value and SVG geometry helpers on synthetic inputs |
-| `python tools/demo/generate_synthetic.py` | PASS: six records generated | Default collector input path and deterministic synthetic file creation |
-| `python tools/demo/verify_api.py --help` | PASS | CLI entry/argument help, not API connectivity |
-| `node --check tools/demo/vite.config.mjs` | PASS | Demo config syntax only, not dependency resolution or a running dev server |
+The repair removes that unused development dependency and regenerates the existing lock through npm with normal peer resolution. npm added `@emnapi/runtime@1.11.3`, removed 81 obsolete lock entries, and retained **every remaining package version**, including Vue **3.5.32** and Vite **8.0.8**. Application code and lint/build scripts are unchanged.
 
-The collector tests run byte-identical copies of the existing collector in temporary directories against an HTTP recorder bound to 127.0.0.1. They assert actual upload payloads, byte/line progress, restart without duplicate requests, partial-line continuation and malformed-line handling. The recorder returns test responses without a database.
+| Check on a clean isolated candidate | Result |
+| --- | --- |
+| Standard `npm ci`, no pre-existing `node_modules` | PASS — 162 packages installed |
+| Independent second clean-directory `npm ci` + dependency tree | PASS — 162 packages, zero tree issues |
+| `npm run build` | PASS |
+| `npm exec --offline -- oxlint .` | PASS |
+| `npm exec --offline -- eslint . --no-cache` | PASS |
+| `npm ls --all --json` | PASS |
+| Python demo regression suite | PASS — 24 tests |
+| Node chart/value helper suite | PASS — 4 tests |
 
-Verifier unit tests deliberately supply malformed, missing, extra, reordered and incorrect-value responses. Their passing result establishes the checker's behavior, **not that the actual backend returned those records**. Node helper tests do not mount Vue or render a browser page.
+No `legacy-peer-deps` or force mode was used for these checks. A separate verifier independently passed standard installation in another empty directory and found zero dependency-tree issues. Manifest and lock hashes remained unchanged during both installs.
 
-## Source preservation and earlier checks
+The initial failure was `EUSAGE: Missing @emnapi/runtime@1.11.3 from lock file`. The original project used `npm install`; the public runbook's stricter clean-install command exposed an inherited lock/peer issue. The earlier compatibility-flag experiment diagnosed that issue; it is not the published installation procedure.
 
-The initial public source snapshot was commit `460ee8bb8c31e3f78d70231d8af2ead4112d9186`. This update changes documentation and adds isolated examples/demo tests; existing Java, Vue/JS application code, Python collector, Maven/npm build declarations and SQL schema remain unchanged.
+## Real synthetic application replay
 
-Before the initial export, independent local checks of the accepted source passed offline Maven `test-compile`, Vite build, Oxlint, ESLint, Java/Mapper references and Python/PowerShell syntax. Those results used existing local dependencies. They are **not a fresh-clone dependency installation test**, and no full build was repeated solely for documentation.
+On **2026-09-30**, an independent runtime check exercised public commit `8bf3f226083200f15b20194929361689976cb385` through the actual collector, packaged Spring Boot application, isolated MySQL, API queries and Chrome/Vue UI.
 
-## NOT VERIFIED in this update
+| Observation | Result |
+| --- | --- |
+| Schema initialization | 0 initial readings, 6 module definitions, CH2 → strain mapping |
+| First collector run | 6 rows persisted |
+| Same-state restart | 0 uploads; database remains at 6 rows |
+| Fresh-state replay | 6 records replayed; database still contains 6 rows |
+| Canonical and strain latest/history APIs | All four endpoints return the expected values and source identity |
+| Primary values | 10.00, 10.25, 10.50, 10.75, 11.00, 11.25 |
+| Latest reading | 11.25 at `2025-01-01 00:00:05` |
+| Actual Vue page | 6 table rows, 6 rising SVG points, 0 browser errors |
+| Independent evidence review | 24 checks passed |
 
-- Installing dependencies from an empty cache / a new clone.
-- MySQL schema execution, Spring Boot startup, actual persistence and duplicate handling in MySQL.
-- The four API queries against the Java backend.
-- Browser rendering, development proxy operation and the complete input → collector → Java → MySQL → query → Vue chain.
-- Physical sensors, calibration, industrial deployment, production load, authentication or safety suitability.
+That initial runtime check used the compatibility install before the lock repair. The real application path was then repeated with the **repaired standard-install candidate** at **15:29:37–15:29:56 UTC**. All ingestion, restart, duplicate-replay and four-API checks passed again; the real browser passed **18/18 assertions** with six matching table rows/curve points and zero errors. The verified backend JAR was reused after source and packaged-class comparison; the frontend used the newly installed dependencies.
 
-MySQL/Docker was not available in the inspected local environment. No database was installed, no load test was run, and no industrial device was contacted. The [runbook](runbook.md) supplies reproducible commands and acceptance observations for the remaining chain; it does not mark them as passed. Stop and investigate if the strict verifier fails or the expected six rows are absent.
+[Actual synthetic-demo screenshot](assets/os265-synthetic-strain.png) · [Machine-readable hashes and results](evidence/dependency-runtime-20260930.json)
+
+The six input records are **SYNTHETIC OS265-format channel data**. MySQL, Spring Boot/MyBatis, the original Python collector, Vite, Vue and Chrome are real processes. This exercises CH2/strain through the application's file boundary; the original project's OS265 hardware laboratory background is described separately on the homepage.
+
+## Environment and execution details
+
+| Component | Recorded version |
+| --- | --- |
+| Node / npm | 24.11.1 / 11.19.1 |
+| Vue / Vite | 3.5.32 / 8.0.8 |
+| Java / Maven | Temurin 25+36, Java 17 compilation target / 3.9.11 |
+| Spring Boot / MySQL | 4.0.5 / 8.0.34 |
+| Python / Chrome | 3.14.6 / 153 |
+
+The runtime check used a separate MySQL datadir and loopback ports **13316 / 18080 / 15173**, with a demo-only Vite proxy override. Backend packaging used the installed Maven dependency cache. The original database and industrial devices were not used. Recorded test services are shut down after the run.
+
+The documented default-port setup and first-use Maven wrapper download were not separately replayed. The test covers deterministic ingestion, query, resume, duplicate replay and the strain chart; other monitoring views were not populated with additional fixtures.
+
+## Source preservation
+
+The clean public history begins at `460ee8bb8c31e3f78d70231d8af2ead4112d9186`. The dependency repair changes only the frontend package declaration and npm-generated lock, plus documentation and demo evidence. Java, Vue/JS application code, Python collector, SQL schema and other build configuration remain unchanged.
+
+The independent source audit matched the full original backup and public export, resolved the Java/MyBatis references, and confirmed that excluded historical XLSX files are not required by the active runtime chain. Before the real runtime check, offline compilation, Vite build, lint and parser/reference checks had also passed.
 
 ## Public source scope and notices
 
-The public repository preserves the existing Fable5 refactor source. Its history begins with a clean source snapshot; later commits document public-project improvements. Old Git history, internal handoff material, backups, credentials, real measurement files, runtime logs and build/dependency output are excluded.
+The public repository preserves the existing Fable5 refactor source. Old Git history, internal handoff material, backups, credentials, real measurement files, runtime logs and dependency/build output are excluded.
 
-Prediction and crack pages await integration. The six monitoring views select unified readings through module mapping; they do not establish six calibrated physical algorithms. Authentication/authorization, deployment hardening, physical calibration and device acceptance are outside the verified scope. The existing rate limiter is not authentication.
+The six monitoring views organize unified readings through module mapping. Prediction and crack pages remain extension points; physical calibration and broader production operations are separate from this synthetic replay.
 
 Existing third-party notices and dependency license metadata are retained. No new license is granted, and sanitization is not a legal determination of ownership.
