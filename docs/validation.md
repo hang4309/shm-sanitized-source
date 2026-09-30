@@ -33,3 +33,11 @@ Before the initial export, independent local checks of the accepted source passe
 - Physical sensors, calibration, industrial deployment, production load, authentication or safety suitability.
 
 MySQL/Docker was not available in the inspected local environment. No database was installed, no load test was run, and no industrial device was contacted. The [runbook](runbook.md) supplies reproducible commands and acceptance observations for the remaining chain; it does not mark them as passed. Stop and investigate if the strict verifier fails or the expected six rows are absent.
+
+## Public source scope and notices
+
+The public repository preserves the existing Fable5 refactor source. Its history begins with a clean source snapshot; later commits document public-project improvements. Old Git history, internal handoff material, backups, credentials, real measurement files, runtime logs and build/dependency output are excluded.
+
+Prediction and crack pages await integration. The six monitoring views select unified readings through module mapping; they do not establish six calibrated physical algorithms. Authentication/authorization, deployment hardening, physical calibration and device acceptance are outside the verified scope. The existing rate limiter is not authentication.
+
+Existing third-party notices and dependency license metadata are retained. No new license is granted, and sanitization is not a legal determination of ownership.
