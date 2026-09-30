@@ -1,44 +1,26 @@
-# shm-frontend
+# SHM frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+Vue 3 / Vite frontend for the unified sensor-reading application. The active navigation includes six monitoring views; prediction and crack pages remain placeholders.
 
-## Recommended IDE Setup
+Start with the [repository overview](../README.md), [full application runbook](../docs/runbook.md) and [verification scope](../docs/validation.md).
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Development
 
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
+Node `^20.19.0 || >=22.12.0` is required by `package.json`.
 
 ```sh
-npm install
+npm ci
+npm run dev -- --config ../tools/demo/vite.config.mjs
 ```
 
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
+Run these commands in this directory. The demo override binds the server and API proxy to IPv4 loopback; the original Vite configuration is unchanged. Start the backend and use the SYNTHETIC strain time window from the runbook.
 
 ```sh
 npm run build
+npx --no-install oxlint .
+npx --no-install eslint .
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+The last two commands are review checks without auto-fix. The original `npm run lint` scripts do modify fixable files.
 
-```sh
-npm run lint
-```
+All modules display unified primary readings filtered by module mapping. Wavelength is auxiliary. A rendered strain page does not demonstrate a physical strain algorithm or calibration. Static preview is not a production backend proxy/deployment configuration.

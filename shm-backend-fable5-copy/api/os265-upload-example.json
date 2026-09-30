@@ -1,0 +1,16 @@
+{
+  "sourceType": "OS265",
+  "deviceNo": "OS-265",
+  "channelNo": "CH2",
+  "sensorId": "FBG-STRAIN-CH2",
+  "moduleKey": "strain",
+  "rawValue": 10.0,
+  "measuredValue": 10.0,
+  "intensity": 10.0,
+  "wavelength": 1550.000,
+  "wavelengthShift": 0.0,
+  "collectTime": "2025-01-01 00:00:00",
+  "sourceFile": "SYNTHETIC_demo_通道2.txt",
+  "sourceOffset": 0,
+  "sourceLine": 1
+}

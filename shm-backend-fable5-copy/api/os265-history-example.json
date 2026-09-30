@@ -1,0 +1,6 @@
+{
+  "sensorId": "FBG-STRAIN-CH2",
+  "startTime": "2025-01-01 00:00:00",
+  "endTime": "2025-01-01 00:00:05",
+  "limit": 50
+}
