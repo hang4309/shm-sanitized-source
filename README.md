@@ -89,3 +89,11 @@ The sample's primary values rise from **10.00 to 11.25**. The recorder demonstra
 This demo brings together the **OS265 channel collector, unified latest/history APIs and six mapped monitoring views**. Prediction and crack integrations are planned extensions.
 
 [Demo setup](docs/runbook.md) · [API reference](shm-backend-fable5-copy/docs/API_ENDPOINTS_REFERENCE.md) · [Engineering notes](docs/validation.md)
+
+## Security validation
+
+SHM uses the MIT-licensed [SHM API Guard](https://github.com/KarlLee123/shm-security-validation) in [GitHub Actions](.github/workflows/shm-api-guard.yml) to check the actual current source and PR merge commits. See [tool adoption and execution evidence](docs/security-tool-adoption.md) and the [security policy](SECURITY.md). Both repositories are maintained by the same owner under two accounts.
+
+## License
+
+The original SHM code and documentation are copyright (c) 2026 hang4309 and licensed under the [MIT License](LICENSE), with the author's explicit authorization. Third-party components, including the bundled Apache Maven Wrapper and separately installed dependencies, retain their own licenses and notices. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for scope and attribution.
