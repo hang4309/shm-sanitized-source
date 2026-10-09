@@ -1,3 +1,7 @@
+server:
+  # The rate limiter must receive the socket peer, before forwarding rewrites.
+  forward-headers-strategy: NONE
+
 spring:
   application:
     name: shm-backend

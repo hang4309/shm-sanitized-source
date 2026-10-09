@@ -72,7 +72,11 @@ cd shm-backend-fable5-copy
 java -jar target/shm-backend-0.0.1-SNAPSHOT.jar --server.address=127.0.0.1 --server.port=8080
 ```
 
-`-DskipTests` builds the application without treating the original database-dependent context-load test as an integration suite. Confirm startup and the absence of datasource errors before proceeding. The published API has no established authentication boundary; keep this demo on loopback. If deploying behind a reverse proxy, configure `SHM_RATE_LIMIT_TRUSTED_PROXY_IPS` with exact proxy socket IPs and ensure the proxy overwrites `X-Real-IP`; untrusted forwarding headers are not rate-limit identities.
+`-DskipTests` builds the application without running tests. Run `./mvnw verify` (PowerShell: `.\mvnw.cmd verify`) for the complete backend suite; its context test uses an isolated in-memory H2 database and requires no operational database. Confirm application startup and the absence of datasource errors before proceeding. The published API has no established authentication boundary; keep this demo on loopback.
+
+For a reverse proxy, configure `SHM_RATE_LIMIT_TRUSTED_PROXY_IPS` with exact IPv4/IPv6 socket addresses and ensure that proxy **overwrites** `X-Real-IP` with one numeric client address. Leave the setting empty for direct access; never mark an untrusted caller or an entire shared access host as a trusted proxy. CIDRs, hostnames, ports, IPv6 zones, shortened IPv4 and IPv4 with leading zeros are rejected. Missing, invalid or repeated `X-Real-IP` values share the proxy's own bucket; `X-Forwarded-For` and `Forwarded` are never identities.
+
+Keep `server.forward-headers-strategy=NONE`, as committed in `application.yml`. Setting `SERVER_FORWARD_HEADERS_STRATEGY=NATIVE` or `FRAMEWORK` prevents startup because those modes can rewrite the socket peer. Do not install a container `RemoteIpValve` or other native peer-rewriting extension outside Spring configuration. Standard servlet wrappers are unwrapped defensively for the peer, headers and protected path; malformed or excessive wrapping is rejected. See the [security policy](../SECURITY.md) and [security verification record](security-verification.md).
 
 ## 4. Generate and ingest six records
 

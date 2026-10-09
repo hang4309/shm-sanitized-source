@@ -24,6 +24,6 @@ jobs:
           distribution: temurin
           java-version: "17"
           cache: maven
-      - name: Run rate-limit identity regression tests
+      - name: Run backend tests and package
         working-directory: shm-backend-fable5-copy
-        run: ./mvnw -B -Dtest=ApiRateLimitFilterTest test
+        run: ./mvnw -B verify

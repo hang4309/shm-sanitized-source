@@ -2,23 +2,32 @@ package com.example.shm.common.ratelimit;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletRequestWrapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Objects;
+import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
+import java.util.function.LongSupplier;
 
 /**
  * Per-endpoint, per-client-IP rate limiting for the hot data APIs.
@@ -42,10 +51,11 @@ import java.util.regex.Pattern;
  * short delay.
  *
  * Memory safety: each bucket stores lastAccessMillis; buckets idle for
- * more than 5 minutes are pruned lazily at most once per minute, so the
- * map cannot grow without bound and no background thread is needed.
+ * more than 5 minutes are pruned lazily at most once per minute. Active
+ * client count has no hard cap; this is not a distributed DoS boundary.
  */
 @Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class ApiRateLimitFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(ApiRateLimitFilter.class);
@@ -63,16 +73,33 @@ public class ApiRateLimitFilter extends OncePerRequestFilter {
     private static final long CLEANUP_INTERVAL_MILLIS = 60 * 1000L;
 
     private final ConcurrentHashMap<String, TokenBucket> buckets = new ConcurrentHashMap<>();
-    private final AtomicLong lastCleanupMillis = new AtomicLong(System.currentTimeMillis());
+    private final AtomicLong lastCleanupMillis;
     private final Set<String> trustedProxyIps;
+    private final LongSupplier clockMillis;
 
-    public ApiRateLimitFilter(@Value("${shm.rate-limit.trusted-proxy-ips:}") String configuredProxyIps) {
+    @Autowired
+    public ApiRateLimitFilter(@Value("${shm.rate-limit.trusted-proxy-ips:}") String configuredProxyIps,
+                              @Value("${server.forward-headers-strategy:NONE}") String forwardingStrategy) {
+        this(configuredProxyIps, forwardingStrategy, () -> System.nanoTime() / 1_000_000L);
+    }
+
+    ApiRateLimitFilter(String configuredProxyIps, LongSupplier clockMillis) {
+        this(configuredProxyIps, "NONE", clockMillis);
+    }
+
+    private ApiRateLimitFilter(String configuredProxyIps, String forwardingStrategy, LongSupplier clockMillis) {
+        if (!"NONE".equalsIgnoreCase(forwardingStrategy.trim())) {
+            throw new IllegalArgumentException("The rate limiter requires server.forward-headers-strategy=NONE; "
+                    + "configure shm.rate-limit.trusted-proxy-ips and overwrite X-Real-IP at the proxy instead");
+        }
+        this.clockMillis = Objects.requireNonNull(clockMillis);
+        this.lastCleanupMillis = new AtomicLong(clockMillis.getAsLong());
         Set<String> parsed = new HashSet<>();
         Arrays.stream(configuredProxyIps.split(","))
                 .map(String::trim)
                 .filter(value -> !value.isEmpty())
                 .forEach(value -> {
-                    String normalized = canonicalIpAddress(value);
+                    String normalized = IpAddressLiteral.canonical(value);
                     if (normalized == null) {
                         throw new IllegalArgumentException("Invalid trusted proxy IP address: " + value);
                     }
@@ -86,8 +113,13 @@ public class ApiRateLimitFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
-        String path = request.getRequestURI();
-        String method = request.getMethod();
+        HttpServletRequest original = originalRequest(request);
+        if (original == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unsupported request wrapper");
+            return;
+        }
+        String path = original.getRequestURI();
+        String method = original.getMethod();
 
         RateLimitRule rule = resolveRule(method, path);
         if (rule == null) {
@@ -95,10 +127,14 @@ public class ApiRateLimitFilter extends OncePerRequestFilter {
             return;
         }
 
-        long now = System.currentTimeMillis();
+        long now = clockMillis.getAsLong();
         maybeCleanup(now);
 
         String clientIp = resolveClientIp(request);
+        if (clientIp == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid client socket address");
+            return;
+        }
         String key = clientIp + "|" + method + "|" + path;
         TokenBucket bucket = buckets.computeIfAbsent(
                 key, ignored -> new TokenBucket(rule.burstCapacity(), rule.refillPerSecond(), now));
@@ -108,7 +144,7 @@ public class ApiRateLimitFilter extends OncePerRequestFilter {
             return;
         }
 
-        log.warn("Rate limit rejected: clientIp={} method={} endpoint={} limit={} rate={}rps burst={} at={}",
+        log.warn("Rate limit rejected: clientIp={} method={} endpoint={} limit={} rate={}rps burst={} tickMs={}",
                 clientIp, method, path, rule.name(), rule.refillPerSecond(), rule.burstCapacity(), now);
 
         response.setStatus(429);
@@ -134,15 +170,23 @@ public class ApiRateLimitFilter extends OncePerRequestFilter {
 
     /**
      * Trust X-Real-IP only when the socket peer is an explicitly configured
-     * reverse proxy. Direct callers cannot choose their rate-limit identity.
+     * reverse proxy. Read the original servlet request so a preceding framework
+     * wrapper cannot replace the peer with an untrusted forwarding header.
      */
     String resolveClientIp(HttpServletRequest request) {
-        String remoteIp = canonicalIpAddress(request.getRemoteAddr());
+        HttpServletRequest original = originalRequest(request);
+        if (original == null) {
+            return null;
+        }
+        String remoteIp = IpAddressLiteral.canonical(original.getRemoteAddr());
         if (remoteIp == null) {
-            return "unknown";
+            return null;
         }
         if (trustedProxyIps.contains(remoteIp)) {
-            String forwardedIp = canonicalIpAddress(request.getHeader("X-Real-IP"));
+            Enumeration<String> headers = original.getHeaders("X-Real-IP");
+            String value = headers != null && headers.hasMoreElements() ? headers.nextElement() : null;
+            String forwardedIp = headers != null && headers.hasMoreElements()
+                    ? null : IpAddressLiteral.canonical(value);
             if (forwardedIp != null) {
                 return forwardedIp;
             }
@@ -150,20 +194,20 @@ public class ApiRateLimitFilter extends OncePerRequestFilter {
         return remoteIp;
     }
 
-    private static String canonicalIpAddress(String value) {
-        if (value == null || value.isBlank() || !value.matches("[0-9a-fA-F:.]+")) {
-            return null;
+    private static HttpServletRequest originalRequest(HttpServletRequest request) {
+        ServletRequest current = request;
+        Set<ServletRequest> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+        while (current instanceof ServletRequestWrapper wrapper) {
+            if (seen.size() >= 32 || !seen.add(current)) {
+                return null;
+            }
+            current = wrapper.getRequest();
         }
-        try {
-            return InetAddress.getByName(value.trim()).getHostAddress();
-        } catch (Exception ignored) {
-            return null;
-        }
+        return current instanceof HttpServletRequest original ? original : null;
     }
 
     /**
-     * Lazy pruning of idle buckets, at most once per minute, so the
-     * limiter map cannot grow forever and the hot path stays cheap.
+     * Lazy pruning of idle buckets, at most once per minute.
      */
     private void maybeCleanup(long now) {
         long last = lastCleanupMillis.get();
