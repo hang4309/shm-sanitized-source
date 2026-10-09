@@ -1,0 +1,62 @@
+name: SHM API Guard adoption
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shm-api-guard-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  current-source-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out the actual event commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+          path: source
+          persist-credentials: false
+      - name: Fetch the pinned MIT security tool
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: KarlLee123/shm-security-validation
+          ref: 8a23d8fc8786cf3e5ae656602578b5ee5d3b3900
+          path: guard
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.14"
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Validate current SHM code with SHM API Guard
+        env:
+          EXPECTED_SOURCE_COMMIT: ${{ github.sha }}
+        run: >-
+          python -B guard/scripts/run_integration.py
+          --revision current
+          --expected-commit "$EXPECTED_SOURCE_COMMIT"
+          --upstream "$GITHUB_WORKSPACE/source"
+          --work-dir "$RUNNER_TEMP/shm-api-guard"
+      - name: Upload source, artifact and regression evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: shm-api-guard-${{ github.sha }}
+          if-no-files-found: warn
+          retention-days: 90
+          path: |
+            ${{ runner.temp }}/shm-api-guard/integration-report.json
+            ${{ runner.temp }}/shm-api-guard/runtime-*.json
+            ${{ runner.temp }}/shm-api-guard/upstream-build.log
+            ${{ runner.temp }}/shm-api-guard/harness-build.log
+            ${{ runner.temp }}/shm-api-guard/backend.log

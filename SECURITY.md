@@ -23,6 +23,14 @@ The maintenance process is: acknowledge and triage the report, reproduce within 
 
 See the [runbook](docs/runbook.md) for configuration and the [verification record](docs/security-verification.md) for executed tests and evidence boundaries.
 
+## Continuous security regression
+
+This repository adopts the MIT-licensed SHM API Guard maintained by `KarlLee123`. Its [dedicated workflow](.github/workflows/shm-api-guard.yml) pins the tool's commit and checks this repository's actual push or PR merge commit, including the full backend suite and seven real API security checks. See [adoption and source-identity evidence](docs/security-tool-adoption.md). Both repositories have the same owner; this is not a claim of independent third-party adoption.
+
+## Published security records
+
+[GHSA-7hhv-g4ww-c8j3 / SHM-SEC-001](https://github.com/hang4309/shm-sanitized-source/security/advisories/GHSA-7hhv-g4ww-c8j3) records the forwarding-header rate-limit bypass at commit `51aefef11004e79227d47bb870caa0c09dd9b1be`, fixed by the main merge `21159f8b732067cfc248d3e6230abc8001a0e5e8`. It links the actual fix, bounded reproduction and regression evidence.
+
 ## Licensing boundary
 
-This policy grants no copyright or license rights and adds no repository-wide license. Existing third-party notices and terms remain applicable to their respective material. Do not treat the security documentation as permission to relicense third-party code.
+The author's original SHM code and documentation are licensed under the root [MIT License](LICENSE). Third-party materials retain their original licenses and attribution; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Security maintenance and test results do not change those third-party terms.

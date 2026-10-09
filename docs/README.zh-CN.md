@@ -89,3 +89,9 @@ OK
 本 Demo 展示 **OS265 通道采集、统一 latest/history 查询和六个监测视图**，通过模块映射组织读数。后续扩展包括预测与裂缝数据接入。
 
 [Demo 启动](runbook.md) · [API 参考](../shm-backend-fable5-copy/docs/API_ENDPOINTS_REFERENCE.md) · [工程记录](validation.md)
+
+## 开源许可证
+
+本项目原创代码和文档由作者及权利人 hang4309 明确授权，以 [MIT 许可证](../LICENSE) 开源。随附的 Apache Maven Wrapper 及各第三方依赖继续遵守其原有许可证和声明，详见 [第三方声明](../THIRD_PARTY_NOTICES.md)。
+
+本项目在 [安全 CI](../.github/workflows/shm-api-guard.yml) 中使用 KarlLee123 维护的 SHM API Guard 检测当前代码。两个账号由同一人控制；[采用记录](security-tool-adoption.md)公开说明了实际依赖和测试范围。

@@ -71,4 +71,4 @@ The public repository preserves the existing Fable5 refactor source. Old Git his
 
 The six monitoring views organize unified readings through module mapping. Prediction and crack pages remain extension points; physical calibration and broader production operations are separate from this synthetic replay.
 
-Existing third-party notices and dependency license metadata are retained. No new license is granted, and sanitization is not a legal determination of ownership.
+The author has explicitly licensed the original SHM code and documentation under the root [MIT License](../LICENSE). Existing third-party notices and dependency license metadata are retained; see [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
