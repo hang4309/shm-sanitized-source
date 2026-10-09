@@ -6,11 +6,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
@@ -59,6 +64,22 @@ public class ApiRateLimitFilter extends OncePerRequestFilter {
 
     private final ConcurrentHashMap<String, TokenBucket> buckets = new ConcurrentHashMap<>();
     private final AtomicLong lastCleanupMillis = new AtomicLong(System.currentTimeMillis());
+    private final Set<String> trustedProxyIps;
+
+    public ApiRateLimitFilter(@Value("${shm.rate-limit.trusted-proxy-ips:}") String configuredProxyIps) {
+        Set<String> parsed = new HashSet<>();
+        Arrays.stream(configuredProxyIps.split(","))
+                .map(String::trim)
+                .filter(value -> !value.isEmpty())
+                .forEach(value -> {
+                    String normalized = canonicalIpAddress(value);
+                    if (normalized == null) {
+                        throw new IllegalArgumentException("Invalid trusted proxy IP address: " + value);
+                    }
+                    parsed.add(normalized);
+                });
+        this.trustedProxyIps = Set.copyOf(parsed);
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -112,23 +133,32 @@ public class ApiRateLimitFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Client IP resolution: first X-Forwarded-For entry, then X-Real-IP,
-     * then the socket address. Malformed or empty headers never throw.
+     * Trust X-Real-IP only when the socket peer is an explicitly configured
+     * reverse proxy. Direct callers cannot choose their rate-limit identity.
      */
-    private String resolveClientIp(HttpServletRequest request) {
-        String forwarded = request.getHeader("X-Forwarded-For");
-        if (forwarded != null) {
-            int comma = forwarded.indexOf(',');
-            String first = (comma >= 0 ? forwarded.substring(0, comma) : forwarded).trim();
-            if (!first.isEmpty()) {
-                return first;
+    String resolveClientIp(HttpServletRequest request) {
+        String remoteIp = canonicalIpAddress(request.getRemoteAddr());
+        if (remoteIp == null) {
+            return "unknown";
+        }
+        if (trustedProxyIps.contains(remoteIp)) {
+            String forwardedIp = canonicalIpAddress(request.getHeader("X-Real-IP"));
+            if (forwardedIp != null) {
+                return forwardedIp;
             }
         }
-        String realIp = request.getHeader("X-Real-IP");
-        if (realIp != null && !realIp.trim().isEmpty()) {
-            return realIp.trim();
+        return remoteIp;
+    }
+
+    private static String canonicalIpAddress(String value) {
+        if (value == null || value.isBlank() || !value.matches("[0-9a-fA-F:.]+")) {
+            return null;
         }
-        return request.getRemoteAddr();
+        try {
+            return InetAddress.getByName(value.trim()).getHostAddress();
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     /**
