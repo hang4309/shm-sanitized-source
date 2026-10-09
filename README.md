@@ -4,7 +4,7 @@
 
 An engineering demo extracted from a real OS265 optical-fiber interrogator integration project for FBG sensing. A Python collector reads the channel files written by vendor software, then feeds a Spring Boot API, MySQL storage and a Vue monitoring dashboard.
 
-[Quickstart](#quickstart) · [Full application demo](docs/runbook.md) · [Architecture](docs/architecture.md) · [Engineering notes](docs/validation.md) · [中文](docs/README.zh-CN.md)
+[Quickstart](#quickstart) · [Full application demo](docs/runbook.md) · [Architecture](docs/architecture.md) · [Engineering notes](docs/validation.md) · [Security](SECURITY.md) · [中文](docs/README.zh-CN.md)
 
 ![OS265 integration architecture: FBG sensors → OS265 optical-fiber interrogator → vendor software → channel files → Python collector → Spring Boot API → MySQL → Vue. Synthetic replay enters at the file boundary.](docs/assets/sensor-pipeline.svg)
 

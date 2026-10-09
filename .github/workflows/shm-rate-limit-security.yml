@@ -1,0 +1,29 @@
+name: SHM rate limit security regression
+
+on:
+  push:
+    paths:
+      - "shm-backend-fable5-copy/**"
+      - ".github/workflows/shm-rate-limit-security.yml"
+  pull_request:
+    paths:
+      - "shm-backend-fable5-copy/**"
+      - ".github/workflows/shm-rate-limit-security.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trusted-client-ip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - name: Run backend tests and package
+        working-directory: shm-backend-fable5-copy
+        run: ./mvnw -B verify
