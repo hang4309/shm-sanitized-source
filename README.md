@@ -92,7 +92,7 @@ This demo brings together the **OS265 channel collector, unified latest/history 
 
 ## Security validation
 
-SHM uses the MIT-licensed [SHM API Guard](https://github.com/KarlLee123/shm-security-validation) in [GitHub Actions](.github/workflows/shm-api-guard.yml) to check the actual current source and PR merge commits. See [tool adoption and execution evidence](docs/security-tool-adoption.md) and the [security policy](SECURITY.md). Both repositories are maintained by the same owner under two accounts.
+The [GitHub Actions workflow](.github/workflows/shm-api-guard.yml) is configured to use a pinned revision of the MIT-licensed SHM API Guard to check the actual current source and PR merge commits. The tool's publicly accessible repository is [SHM API Guard](https://github.com/KarlLee123/shm-api-guard); the workflow retains its original pinned tool revision. See [tool adoption and execution evidence](docs/security-tool-adoption.md) and the [security policy](SECURITY.md). Both repositories are maintained by the same owner under two accounts.
 
 ## License
 
